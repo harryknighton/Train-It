@@ -8,7 +8,7 @@ class Query:
         else:
             raise ValueError
 
-        if 1 <= pDate[0] <= 31 and 1 <= pDate[1] <= 12 and 2019 <= pDate[2] <= 2021:
+        if 1 <= pDate[0] <= 31 and 1 <= pDate[1] <= 12 and 2015 <= pDate[2] <= 2021:
             self.fromDate = "{}-{}-{}".format(pDate[2], str(pDate[1]).zfill(2), str(pDate[0]).zfill(0))
             self.toDate = self.fromDate
             self.toDate = self.toDate[0:8] + str(int(self.toDate[-2:]) + 1).zfill(2)
@@ -19,8 +19,8 @@ class Query:
 
         if 0 <= pTime[0] <= 23 and 0 <= pTime[1] <= 59:
             self.fromTime = str(pTime[0]).zfill(2) + str(pTime[1]).zfill(2)
-            self.toTime = "00" if (int(self.fromTime[0:2])) else str(int(self.fromTime[0:2]) + 1).zfill(2)
-            self.toTime += self.fromTime[-2:]
+            self.toTime = self.fromTime[:2]
+            self.toTime += str(int(self.fromTime[2:]) + 10 % 60).zfill(2)
         else:
             raise ValueError
 
@@ -40,7 +40,7 @@ class Query:
         else:
             self.dayType = "WEEKDAY"
 
-    def to_params(self):
+    def to_dict(self):
         params = {}
         params["from_loc"] = self.source
         params["to_loc"] = self.destination
