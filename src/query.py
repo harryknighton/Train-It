@@ -11,7 +11,6 @@ class Query:
         if 1 <= pDate[0] <= 31 and 1 <= pDate[1] <= 12 and 2015 <= pDate[2] <= 2021:
             self.fromDate = "{}-{}-{}".format(pDate[2], str(pDate[1]).zfill(2), str(pDate[0]).zfill(0))
             self.toDate = self.fromDate
-            self.toDate = self.toDate[0:8] + str(int(self.toDate[-2:]) + 1).zfill(2)
             self.dayType = ""
             self.set_day_type(pDate)
         else:
@@ -19,8 +18,11 @@ class Query:
 
         if 0 <= pTime[0] <= 23 and 0 <= pTime[1] <= 59:
             self.fromTime = str(pTime[0]).zfill(2) + str(pTime[1]).zfill(2)
-            self.toTime = self.fromTime[:2]
-            self.toTime += str(int(self.fromTime[2:]) + 10 % 60).zfill(2)
+            if self.fromTime[2:] < "55":
+                self.toTime = self.fromTime[:2]
+            else:
+                self.toTime = str(int(self.fromTime[:2]) + 1).zfill(2)
+            self.toTime += str(int(self.fromTime[2:]) + 5 % 60).zfill(2)
         else:
             raise ValueError
 
