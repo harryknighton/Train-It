@@ -7,6 +7,7 @@ try:
 except ValueError:
     print("Bad input data for query")
 
+"""
 res = api.get_metrics(myQ)
 if res.status_code != 200:
     print(res.status_code)
@@ -18,3 +19,11 @@ else:
     details = api.get_details(RID)
     for loc in details.json()["serviceAttributesDetails"]["locations"]:
         print(loc)
+"""
+
+res = api.get_historic_weather_details(myQ)
+if res.status_code != 200:
+    print(res.status_code)
+    print(res.reason)
+else:
+    print(res.json()['currently'])
