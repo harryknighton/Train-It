@@ -1,22 +1,18 @@
 import query
 import api_interface as api
 
+
 myQ = None
 try:
-    myQ = query.Query("HHE", "BTN", [19, 6, 2018], [14, 11])
+    #myQ = query.Query("HHE", "BTN", [19, 6, 2018], [14, 11])
+    myQ = query.Query("HHE", "BTN", [4, 11, 2019], [21, 36])
 except ValueError:
     print("Bad input data for query")
 
-"""
-res = api.get_metrics(myQ)
-if res.status_code != 200:
-    print(res.status_code)
-    print(res.reason)
-else:
-    jsonResponse = res.json()
-    RID = jsonResponse["Services"][0]["serviceAttributesMetrics"]["rids"][0]
-    print("Requested RID: " + RID)
-    details = api.get_details(RID)
-    for loc in details.json()["serviceAttributesDetails"]["locations"]:
-        print(loc)
-"""
+
+res = api.make_forecast_call()
+print(res.status_code)
+#for hour in res.json()["daily"]["data"]:
+    #print(hour)
+
+print(api.seconds_since_epoch_for_date(myQ))

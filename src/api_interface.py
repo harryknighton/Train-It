@@ -1,8 +1,11 @@
 import requests
+import time
+import calendar
 
-#Functions to access the HSP API
+# Functions to access the HSP API
 _USER = "harry.knighton18@students.bhasvic.ac.uk"
 _PW = "HarryKnighton01234!"
+
 
 def get_metrics(myQuery):
     ENDPOINT = "https://hsp-prod.rockshore.net/api/v1/serviceMetrics"
@@ -11,11 +14,13 @@ def get_metrics(myQuery):
     response = requests.post(ENDPOINT, json=data, auth=(USER, PW))
     return response
 
+
 def get_details(rid):
     ENDPOINT = "https://hsp-prod.rockshore.net/api/v1/serviceDetails"
     data = {"rid": rid}
     response = requests.post(ENDPOINT, json=data, auth=(USER, PW))
     return response
+
 
 def get_past_service_details(myQuery):
     res = get_metrics(myQuery)
@@ -33,11 +38,12 @@ def get_past_service_details(myQuery):
         print(loc)
 
 
-#Dark Sky API
+# Dark Sky API
 _API_KEY = "d7a272491dc6f6bdfc09b22cdb96c674"
 _LAT = "50.924675"
 _LONG = "-0.146098"
 _UNITS = "units=uk2"
+
 
 def make_historic_details_call(myQuery):
     excludes = "exclude=minutely,hourly,daily,alerts"
@@ -46,11 +52,13 @@ def make_historic_details_call(myQuery):
     res = requests.get(URL)
     return res
 
+
 def make_forecast_call():
-    excludes = "exclude=currently,minutely,daily,alerts,flags"
+    excludes = "exclude=currently,minutely,hourly,alerts,flags"
     URL = "https://api.darksky.net/forecast/{}/{},{}?{}&{}".format(_API_KEY, _LAT, _LONG, excludes, _UNITS)
     res = requests.get(URL)
     return res
+
 
 def get_historic_weather_details(myQuery):
     res = make_historic_details_call(myQuery)
@@ -68,3 +76,14 @@ def get_historic_weather_details(myQuery):
             else:
                 print("Missing " + key + " attribute from Dark Sky response.")
         return usefulInfo
+
+
+def get_forecast_info(dateOfTravel, hourOfTravel):
+    """Handles request for API info, and extracts data from response"""
+
+
+def seconds_since_epoch_for_date(myQuery):
+    """Calculates and returns seconds since epoch for the beginning of a specified hour"""
+    dateTime = "{} {}:00:00".format(myQuery.fromDate, myQuery.fromTime[:2])
+    timeStr = time.strptime(dateTime, '%Y-%m-%d %H:%M:%S')
+    return calendar.timegm(timeStr)
