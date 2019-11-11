@@ -27,18 +27,14 @@ def get_details(rid):
 def get_past_service_details(myQuery):
     """Handles making calls to both HSP APIs, including validating responses, and returns the data acquired."""
     res = get_metrics(myQuery)
-    if res.status_code != 200:
-        print("HSP Metrics call failed:")
-        print(str(res.status_code), res.reason)
+    if not util.is_response_code_valid(res, "HSP Metrics"):
         raise RuntimeError
     RID = res.json()["Services"][0]["serviceAttributesMetrics"]["rids"][0]  # path of RID in JSON response.
+
     details = get_details(RID)
-    if details.status_code != 200:
-        print("HSP Details call failed:")
-        print(str(details.status_code), details.reason)
+    if not util.is_response_code_valid(details, "HSP Details"):
         raise RuntimeError
-    for loc in details.json()["serviceAttributesDetails"]["locations"]:
-        print(loc)
+    return details.json()["serviceAttributesDetails"]["locations"]  # Return list of locations on service.
 
 
 # Dark Sky API
@@ -89,9 +85,7 @@ def make_forecast_call():
 def get_historic_weather_details(myQuery):
     """Validates and extracts useful information from Time Machine API response"""
     res = make_historic_weather_call(myQuery)
-    if res.status_code != 200:
-        print("Dark Sky API call failed:")
-        print(str(res.status_code), res.reason)
+    if not util.is_response_code_valid(res, "Dark Sky Time Machine"):
         raise RuntimeError
     else:
         info = res.json()["currently"]
@@ -101,9 +95,7 @@ def get_historic_weather_details(myQuery):
 def get_forecast_info(myQ):
     """Handles request for API info, and extracts data from response"""
     res = make_forecast_call()
-    if res.status_code != 200:
-        print("Dark Sky Forecast call failed:")
-        print(str(res.status_code), res.reason)
+    if not util.validate_response_status_code(res, "Dark Sky Forecast"):
         raise RuntimeError
     else:
         data = res.json()["hourly"]["data"]
@@ -116,6 +108,7 @@ def get_forecast_info(myQ):
         return extract_useful_weather_data(targetData)
 
 
+# Combine API calls to produce Database Row
 
-
-
+def get_input_data_for_date(myQ):
+    pass
