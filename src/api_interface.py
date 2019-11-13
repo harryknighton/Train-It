@@ -1,5 +1,6 @@
 import requests
 import util
+import pandas as pd
 
 # Functions to access the HSP API
 
@@ -34,7 +35,7 @@ def get_past_service_details(myQuery):
     details = get_details(RID)
     if not util.is_response_code_valid(details, "HSP Details"):
         raise RuntimeError
-    return details.json()["serviceAttributesDetails"]["locations"]  # Return list of locations on service.
+    return details.json()["serviceAttributesDetails"] # Return details of service, including locations travelled through.
 
 
 # Dark Sky API
@@ -110,5 +111,38 @@ def get_forecast_info(myQ):
 
 # Combine API calls to produce Database Row
 
+def calculate_average_delay(locations):
+    """Calculates and returns the average delay of a rail service"""
+    lineEndpoints = ["HWD", 'LIT', 'LWS', 'BTN']
+    totalDelay = 0
+    reachedStartOfLine = False
+    for location in locations:
+        if location['location'] in lineEndpoints:
+            reachedStartOfLine = not reachedStartOfLine  # Start/Stop considering stations
+        elif not reachedStartOfLine:
+            continue  # Skip stations until the stations considered in scope of project are reached.
+        stationDelay = int(location['actual_ta']) - int(location['gbtt_pta'])
+        totalDelay += stationDelay
+    return totalDelay / (len(locations)-1)  # Return mean average of delays
+
+
+# RushHour, Line, toc, "temperature", "precipIntensity", "windSpeed", "cloudCover", "visibility, averageDelay"
 def get_input_data_for_date(myQ):
-    pass
+    """Combines and returns data from both APIs in a single database row"""
+    trainInfo = get_past_service_details(myQ)
+    averageDelay = calculate_average_delay(trainInfo['locations'])
+    weatherInfo = get_historic_weather_details(myQ)
+    fullInfo = {
+        "Line": None,
+        "TOC": trainInfo["toc_code"],
+        "isRushHour": None,
+        "Temperature": weatherInfo["windSpeed"],
+        "Precipitation": weatherInfo["windSpeed"],
+        "Wind Speed": weatherInfo["windSpeed"],
+        "Cloud Cover": weatherInfo["windSpeed"],
+        "Visibility": weatherInfo["windSpeed"],
+        "Delay": averageDelay
+    }
+    return pd.DataFrame(fullInfo)  # Dataframe consisting of one row
+
+
