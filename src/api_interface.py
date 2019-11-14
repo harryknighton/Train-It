@@ -113,7 +113,7 @@ def get_forecast_info(myQ):
 
 def calculate_average_delay(locations):
     """Calculates and returns the average delay of a rail service"""
-    lineEndpoints = ["HWD", 'LIT', 'LWS', 'BTN']
+    lineEndpoints = ["HWD", 'SSE', 'LWS', 'BTN']
     totalDelay = 0
     reachedStartOfLine = False
     for location in locations:
@@ -133,9 +133,9 @@ def get_input_data_for_date(myQ):
     averageDelay = calculate_average_delay(trainInfo['locations'])
     weatherInfo = get_historic_weather_details(myQ)
     fullInfo = {
-        "Line": None,
+        "Line": myQ.line,
         "TOC": trainInfo["toc_code"],
-        "isRushHour": None,
+        "isRushHour": myQ.isRushHour,
         "Temperature": weatherInfo["windSpeed"],
         "Precipitation": weatherInfo["windSpeed"],
         "Wind Speed": weatherInfo["windSpeed"],
