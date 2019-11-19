@@ -47,11 +47,18 @@ class Query:
         else:
             raise ValueError
 
-    def is_toc_format_valid(self, param):
+    def is_toc_format_valid(self, code):
         """Validates a TOC code to ensure it is of correct type and length"""
-        if isinstance(param, str) and len(param) == 3:
-            return True
+        if isinstance(code, str) and len(code) == 3:
+            if code == "BTN":
+                return True
+            for line in _stations.values():
+                if code in line:
+                    return True
+            print("Station not on any line in scope.")
+            return False
         else:
+            print("Station code is in incorrect format.")
             return False
 
     def set_day_type(self, pDate):
@@ -64,6 +71,7 @@ class Query:
             self.dayType = "SUNDAY"
         else:
             self.dayType = "WEEKDAY"
+
 
     def set_to_time(self):
         """Calculate 5 minutes after the fromTime variable and assigns to toTime"""

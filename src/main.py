@@ -1,16 +1,19 @@
 import query
-import api_interface as api
+import data_handling as data
 
-
+"""
+    TODO LIST:
+    -detail errors
+"""
 myQ = None
 try:
-    #myQ = query.Query("HHE", "BTN", [19, 6, 2018], [14, 11])
-    myQ = query.Query("HHE", "BTN", [10, 11, 2019], [14, 36])
+    myQ = query.Query("HWD", "BTN", [4, 6, 2019], [7, 56])
 except ValueError:
-    print("Bad input data for query")
+    print("Bad input data query")
+    quit()
 
-
-data = api.get_historic_weather_details(myQ)
-for key, value in data.items():
-    print("{}: {}".format(key, value))
-
+try:
+    data = data.get_input_data_for_date(myQ)
+    print(data)
+except RuntimeError as er:
+    print("Data retrieval failed.")

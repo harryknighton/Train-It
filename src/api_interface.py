@@ -1,6 +1,5 @@
 import requests
 import util
-import pandas as pd
 
 # Functions to access the HSP API
 
@@ -29,6 +28,7 @@ def get_past_service_details(myQuery):
     """Handles making calls to both HSP APIs, including validating responses, and returns the data acquired."""
     res = get_metrics(myQuery)
     if not util.is_response_code_valid(res, "HSP Metrics"):
+        print("No train runs from {} at {}.".format(myQuery.source, myQuery.fromTime))
         raise RuntimeError
     RID = res.json()["Services"][0]["serviceAttributesMetrics"]["rids"][0]  # path of RID in JSON response.
 
@@ -69,7 +69,6 @@ def make_historic_weather_call(myQuery):
     excludes = "exclude=minutely,hourly,daily,alerts"
     time = "{}T{}:00:00".format(myQuery.fromDate, myQuery.fromTime[:2])
     URL = "https://api.darksky.net/forecast/{}/{},{},{}?{}&{}".format(_API_KEY, _LAT, _LONG, time, excludes, _UNITS)
-    print(URL)
     res = requests.get(URL)
     return res
 
@@ -96,7 +95,7 @@ def get_historic_weather_details(myQuery):
 def get_forecast_info(myQ):
     """Handles request for API info, and extracts data from response"""
     res = make_forecast_call()
-    if not util.validate_response_status_code(res, "Dark Sky Forecast"):
+    if not util.is_response_code_valid(res, "Dark Sky Forecast"):
         raise RuntimeError
     else:
         data = res.json()["hourly"]["data"]
@@ -107,42 +106,3 @@ def get_forecast_info(myQ):
                 targetData = hour
                 break
         return extract_useful_weather_data(targetData)
-
-
-# Combine API calls to produce Database Row
-
-def calculate_average_delay(locations):
-    """Calculates and returns the average delay of a rail service"""
-    lineEndpoints = ["HWD", 'SSE', 'LWS', 'BTN']
-    totalDelay = 0
-    reachedStartOfLine = False
-    for location in locations:
-        if location['location'] in lineEndpoints:
-            reachedStartOfLine = not reachedStartOfLine  # Start/Stop considering stations
-        elif not reachedStartOfLine:
-            continue  # Skip stations until the stations considered in scope of project are reached.
-        stationDelay = int(location['actual_ta']) - int(location['gbtt_pta'])
-        totalDelay += stationDelay
-    return totalDelay / (len(locations)-1)  # Return mean average of delays
-
-
-# RushHour, Line, toc, "temperature", "precipIntensity", "windSpeed", "cloudCover", "visibility, averageDelay"
-def get_input_data_for_date(myQ):
-    """Combines and returns data from both APIs in a single database row"""
-    trainInfo = get_past_service_details(myQ)
-    averageDelay = calculate_average_delay(trainInfo['locations'])
-    weatherInfo = get_historic_weather_details(myQ)
-    fullInfo = {
-        "Line": myQ.line,
-        "TOC": trainInfo["toc_code"],
-        "isRushHour": myQ.isRushHour,
-        "Temperature": weatherInfo["windSpeed"],
-        "Precipitation": weatherInfo["windSpeed"],
-        "Wind Speed": weatherInfo["windSpeed"],
-        "Cloud Cover": weatherInfo["windSpeed"],
-        "Visibility": weatherInfo["windSpeed"],
-        "Delay": averageDelay
-    }
-    return pd.DataFrame(fullInfo)  # Dataframe consisting of one row
-
-
