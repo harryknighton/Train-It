@@ -28,14 +28,16 @@ def get_past_service_details(myQuery):
     """Handles making calls to both HSP APIs, including validating responses, and returns the data acquired."""
     res = get_metrics(myQuery)
     if not util.is_response_code_valid(res, "HSP Metrics"):
-        print("No train runs from {} at {}.".format(myQuery.source, myQuery.fromTime))
         raise RuntimeError
+    if not res.json()["Services"]:
+        print("No train ran from {} at {} on {}.".format(myQuery.source, myQuery.fromTime, myQuery.fromDate))
+        return False
     RID = res.json()["Services"][0]["serviceAttributesMetrics"]["rids"][0]  # path of RID in JSON response.
 
     details = get_details(RID)
     if not util.is_response_code_valid(details, "HSP Details"):
         raise RuntimeError
-    return details.json()["serviceAttributesDetails"] # Return details of service, including locations travelled through.
+    return details.json()["serviceAttributesDetails"]  # Return details of service
 
 
 # Dark Sky API
