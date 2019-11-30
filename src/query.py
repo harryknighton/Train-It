@@ -1,10 +1,6 @@
 import datetime
 
-_stations = {
-    "HWD": ["HWD", "WVF", "BUG", "HSK", "PRP"],
-    "SSE": ["SSE", "SWK", "FSG", "PLD", "AGT", "HOV"],
-    "LWS": ["LWS", "PMP", "CBR", "FMR", "MCB", "LRB"]
-}
+import util
 
 class Query:
     """Contains all the data required to obtain weather and rail service information on a specified day"""
@@ -20,11 +16,11 @@ class Query:
         """
 
         # Set source and destination stations
-        if self.is_toc_format_valid(pSource) and self.is_toc_format_valid(pDestination):
+        if util.is_toc_format_valid(pSource) and util.is_toc_format_valid(pDestination):
             self.source = pSource
             self.destination = pDestination
             self.line = None
-            self.set_service_line() # Determine and set the line the service runs on
+            self.set_service_line()  # Determine and set the line the service runs on
         else:
             raise ValueError
 
@@ -48,20 +44,6 @@ class Query:
         else:
             print("{} not in acceptable bounds for time.".format(pTime))
             raise ValueError
-
-    def is_toc_format_valid(self, code):
-        """Validates a TOC code to ensure it is of correct type and length"""
-        if isinstance(code, str) and len(code) == 3:
-            if code == "BTN":
-                return True
-            for line in _stations.values():
-                if code in line:
-                    return True
-            print("Station not on any line in scope.")
-            return False
-        else:
-            print("Station code is in incorrect format.")
-            return False
 
     def set_day_type(self, pDate):
         """Works out which day type a date falls on and assigns to self.dayType"""
@@ -99,7 +81,7 @@ class Query:
         else:  # Otherwise check which line source resides on
             stationToFind = self.source
 
-        for lineName, stationList in _stations.items():
+        for lineName, stationList in util.stations.items():
             if stationToFind in stationList:
                 self.line = lineName
                 break

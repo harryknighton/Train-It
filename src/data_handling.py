@@ -6,6 +6,9 @@ import api_interface as api
 
 _columnNames = [
     "Line",
+    "HWD Line",
+    "LWS Line",
+    "SSE Line",
     "isPeakTime",
     "Temperature",
     "Precipitation",
@@ -26,10 +29,14 @@ def calculate_average_delay(locations):
             reachedStartOfLine = not reachedStartOfLine  # Start/Stop considering stations
         elif not reachedStartOfLine:
             continue  # Skip stations until the stations considered in scope of project are reached.
-        stationDelay = int(location['actual_ta']) - int(location['gbtt_pta'])
+        stationDelay = 0
+        if location['gbtt_pta'] != '' and location['actual_ta'] != '':
+            stationDelay = int(location['actual_ta']) - int(location['gbtt_pta'])
+        else:
+            stationDelay = int(location['actual_td']) - int(location['gbtt_ptd'])
         totalDelay += stationDelay
         numStations += 1
-    averageDelay = round(totalDelay / numStations, 1)
+    averageDelay = round(totalDelay / numStations, 2)
     return averageDelay
 
 
@@ -40,6 +47,9 @@ def get_input_data_for_date(myQ):
     weatherInfo = api.get_historic_weather_details(myQ)
     fullInfo = [
         myQ.line,
+        -1,
+        -1,  # Placeholder to one-hot-encode line
+        -1,
         myQ.isRushHour,
         weatherInfo["temperature"],
         weatherInfo["precipIntensity"],
@@ -74,7 +84,7 @@ def decode_delay(encodedDelay):
     data = _averageWeatherStats["Delay"]
     delay = encodedDelay * (data[1] - data[0])
     delay += data[0]
-    return delay
+    return round(delay, 2)
 
 
 def one_hot_encode(row):
@@ -83,30 +93,3 @@ def one_hot_encode(row):
     row["SSE Line"] = 1 if row["Line"] == "SSE" else 0
     row = row.drop(labels="Line")
     return row
-
-
-# Data collection
-"""
-varsToFind = ["Temperature", "Precipitation", "Wind Speed", "Delay"]
-lowest = dict.fromkeys(varsToFind, 10000)
-highest = dict.fromkeys(varsToFind, -10000)
-for month in range(1, 13):
-    for day in [1, 10, 20]:
-        for time in [[7, 58], [13, 58]]:
-            myQ = query.Query("WVF", "BTN", [day, month, 2019], time)
-            if myQ.dayType != "WEEKDAY":
-                continue
-            row = None
-            try:
-                row = data.get_input_data_for_date(myQ)
-            except:
-                continue
-            for var in varsToFind:
-                if row[var] < lowest[var]:
-                    lowest[var] = row[var]
-                elif row[var] > highest[var]:
-                    highest[var] = row[var]
-
-print("Lowest", lowest)
-print("Highest", highest)
-"""

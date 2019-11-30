@@ -31,7 +31,7 @@ def get_past_service_details(myQuery):
         raise RuntimeError
     if not res.json()["Services"]:
         print("No train ran from {} at {} on {}.".format(myQuery.source, myQuery.fromTime, myQuery.fromDate))
-        return False
+        raise RuntimeError
     RID = res.json()["Services"][0]["serviceAttributesMetrics"]["rids"][0]  # path of RID in JSON response.
 
     details = get_details(RID)
