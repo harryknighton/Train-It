@@ -63,7 +63,7 @@ class Query:
             self.toTime = self.fromTime[:2]
         else:
             self.toTime = str(int(self.fromTime[:2]) + 1).zfill(2)  # zfill used to add leading 0 to time
-        self.toTime += str((int(self.fromTime[2:]) + 5) % 60).zfill(2) # Calculates minutes part of time
+        self.toTime += str((int(self.fromTime[2:]) + 9) % 60).zfill(2) # Calculates minutes part of time
 
     def set_is_rush_hour(self):
         """Checks whether the service is running during peak times"""

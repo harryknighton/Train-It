@@ -1,5 +1,6 @@
 import requests
 import util
+import errors
 
 # Functions to access the HSP API
 
@@ -30,8 +31,7 @@ def get_past_service_details(myQuery):
     if not util.is_response_code_valid(res, "HSP Metrics"):
         raise RuntimeError
     if not res.json()["Services"]:
-        print("No train ran from {} at {} on {}.".format(myQuery.source, myQuery.fromTime, myQuery.fromDate))
-        raise RuntimeError
+        raise errors.CancelledTrainError(myQuery.source, myQuery.fromTime, myQuery.fromDate)
     RID = res.json()["Services"][0]["serviceAttributesMetrics"]["rids"][0]  # path of RID in JSON response.
 
     details = get_details(RID)

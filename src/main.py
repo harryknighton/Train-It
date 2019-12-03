@@ -11,5 +11,5 @@ except ValueError:
     print("Bad input data for query.")
     quit()
 
-data.get_next_query()
+data.collect_data()
 
