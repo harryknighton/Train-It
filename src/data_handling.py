@@ -6,7 +6,7 @@ import api_interface as api
 
 _columnNames = [
     "Line",
-    "HWD Line",
+    "HHE Line",
     "LWS Line",
     "SSE Line",
     "isPeakTime",
@@ -20,7 +20,7 @@ _columnNames = [
 
 def calculate_average_delay(locations):
     """Calculates and returns the average delay of a rail service"""
-    lineEndpoints = ["HWD", 'SSE', 'LWS', 'BTN']
+    lineEndpoints = ["HHE", 'SSE', 'LWS', 'BTN']
     totalDelay = 0
     numStations = 0
     reachedStartOfLine = False
@@ -32,20 +32,24 @@ def calculate_average_delay(locations):
         stationDelay = 0
         if location['gbtt_pta'] != '' and location['actual_ta'] != '':
             stationDelay = int(location['actual_ta']) - int(location['gbtt_pta'])
-        else:
+            numStations += 1
+        elif location['gbtt_ptd'] != '' and location['actual_td'] != '':
             stationDelay = int(location['actual_td']) - int(location['gbtt_ptd'])
+            numStations += 1
+        else:
+            pass
         totalDelay += stationDelay
-        numStations += 1
+
     averageDelay = round(totalDelay / numStations, 2)
     return averageDelay
 
 
 def get_input_data_for_date(myQ):
     """Combines and returns data from both APIs in a single database row"""
-    trainInfo = api.get_past_service_details(myQ)
-    averageDelay = calculate_average_delay(trainInfo['locations'])
     weatherInfo = api.get_historic_weather_details(myQ)
-    fullInfo = [
+    locations = api.get_past_service_details(myQ)
+    averageDelay = calculate_average_delay(locations)
+    fullInfo = [[
         myQ.line,
         -1,
         -1,  # Placeholder to one-hot-encode line
@@ -57,8 +61,8 @@ def get_input_data_for_date(myQ):
         weatherInfo["cloudCover"],
         weatherInfo["visibility"],
         averageDelay
-    ]
-    return pd.Series(fullInfo, index=_columnNames)
+    ]]
+    return pd.DataFrame(data=fullInfo, columns=_columnNames)
 
 
 # Data Preparation
@@ -88,8 +92,8 @@ def decode_delay(encodedDelay):
 
 
 def one_hot_encode(row):
-    row["HWD Line"] = 1 if row["Line"] == "HWD" else 0
-    row["LWS Line"] = 1 if row["Line"] == "LWS" else 0
-    row["SSE Line"] = 1 if row["Line"] == "SSE" else 0
-    row = row.drop(labels="Line")
+    row.at[0, "HHE Line"] = 1 if row.at[0, "Line"] == "HHE" else 0
+    row.at[0, "LWS Line"] = 1 if row.at[0, "Line"] == "LWS" else 0
+    row.at[0, "SSE Line"] = 1 if row.at[0, "Line"] == "SSE" else 0
+    row = row.drop(labels="Line", axis=1)
     return row

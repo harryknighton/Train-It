@@ -22,6 +22,7 @@ class Query:
             self.line = None
             self.set_service_line()  # Determine and set the line the service runs on
         else:
+            print("Invalid TOC code")
             raise ValueError
 
         # Set to date and from date
@@ -29,7 +30,7 @@ class Query:
             self.fromDate = "{}-{}-{}".format(pDate[2], str(pDate[1]).zfill(2), str(pDate[0]).zfill(2))
             self.toDate = self.fromDate
             self.dayType = ""
-            self.set_day_type(pDate)
+            self.dayType = self.get_day_type(pDate)
         else:
             print("{} not in acceptable bounds for date.".format(pDate))
             raise ValueError
@@ -45,25 +46,26 @@ class Query:
             print("{} not in acceptable bounds for time.".format(pTime))
             raise ValueError
 
-    def set_day_type(self, pDate):
+    @staticmethod
+    def get_day_type(pDate):
         """Works out which day type a date falls on and assigns to self.dayType"""
         myDate = datetime.date(pDate[2], pDate[1], pDate[0])
         weekday = myDate.weekday()
         if weekday == 5:
-            self.dayType = "SATURDAY"
+            return "SATURDAY"
         elif weekday == 6:
-            self.dayType = "SUNDAY"
+            return "SUNDAY"
         else:
-            self.dayType = "WEEKDAY"
+            return "WEEKDAY"
 
 
     def set_to_time(self):
         """Calculate 5 minutes after the fromTime variable and assigns to toTime"""
-        if self.fromTime[2:] < "55":  # Will toTime fall in next hour?
+        if self.fromTime[2:] < "50":  # Will toTime fall in next hour?
             self.toTime = self.fromTime[:2]
         else:
             self.toTime = str(int(self.fromTime[:2]) + 1).zfill(2)  # zfill used to add leading 0 to time
-        self.toTime += str((int(self.fromTime[2:]) + 9) % 60).zfill(2) # Calculates minutes part of time
+        self.toTime += str((int(self.fromTime[2:]) + 10) % 60).zfill(2)  # Calculates minutes part of time
 
     def set_is_rush_hour(self):
         """Checks whether the service is running during peak times"""
@@ -86,7 +88,7 @@ class Query:
                 self.line = lineName
                 break
         if self.line is None:  # Default = Hayward's Heath
-            self.line = "HWD"
+            self.line = "HHE"
 
     def to_dict(self):
         """Combines all query information into a dictionary, suitable to be passed to an API"""

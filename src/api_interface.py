@@ -31,13 +31,21 @@ def get_past_service_details(myQuery):
     if not util.is_response_code_valid(res, "HSP Metrics"):
         raise RuntimeError
     if not res.json()["Services"]:
-        raise errors.CancelledTrainError(myQuery.source, myQuery.fromTime, myQuery.fromDate)
+        print("RID could not be acquired for service.")
+        raise errors.MissingTrainError
     RID = res.json()["Services"][0]["serviceAttributesMetrics"]["rids"][0]  # path of RID in JSON response.
 
     details = get_details(RID)
     if not util.is_response_code_valid(details, "HSP Details"):
         raise RuntimeError
-    return details.json()["serviceAttributesDetails"]  # Return details of service
+    locations = details.json()["serviceAttributesDetails"]["locations"]  # Extract details of service
+    numMissing = 0
+    for i in range(2, len(locations)):  # Iterate through intermediate stations
+        if locations[-i]["actual_td"] == '':
+            numMissing += 1
+    if numMissing / len(locations) > 0.3:
+        raise errors.MissingStationDataError
+    return locations
 
 
 # Dark Sky API
@@ -52,6 +60,7 @@ _UNITS = "units=uk2"
 # Properties to extract from API response
 WeatherProperties = ["temperature", "precipIntensity", "windSpeed", "cloudCover", "visibility"]
 
+
 def extract_useful_weather_data(data):
     wantedAttributes = ["temperature", "precipIntensity", "windSpeed", "cloudCover", "visibility"]
     wantedData = {}
@@ -63,6 +72,7 @@ def extract_useful_weather_data(data):
             wantedData[key] = 0
         else:
             print("Missing " + key + " attribute from Dark Sky response.")
+            raise errors.MissingWeatherInfoError
     return wantedData
 
 
