@@ -1,9 +1,13 @@
-import query
+
 import random
-import util
 import os
+import concurrent.futures
+from time import sleep
 
 import data_handling as data
+import api_interface as api
+import util
+import query
 import errors
 
 _SAVEFILEPATH = "C:\\Users\\hjknighton\\PycharmProjects\\Train-It\\dataset\\dataset.txt"
@@ -22,7 +26,6 @@ def get_random_days(month, year):
     return days
 
 
-
 def get_two_services(line):
     """Return two random services for a given line"""
     fromBrightonTime = random.choice(util.lineTimesFromBrighton[line])
@@ -32,57 +35,58 @@ def get_two_services(line):
     return services
 
 
-def get_next_query():
+def get_next_queries():
     """Get next query to be searched"""
-    yearMonths = [[2018, 7, 13], [2019, 1, 7]]
+    yearMonths = [[2018, 7, 13]]
     random.seed()  # Initialise random num generator
     for yearRange in yearMonths:
         year = yearRange[0]
         for month in range(yearRange[1], yearRange[2]):
             days = get_random_days(month, year)
             for day in days:
+                dayQueries = []
                 for line in util.lines:
                     for service in get_two_services(line):
                         date = [day, month, year]
                         currQ = query.Query(service["source"], service["destination"], date, service["time"])
-                        yield currQ
+                        dayQueries.append(currQ)
+                yield dayQueries
 
 
 def collect_data():
     """Creates and populates a csv file with train data"""
     if not os.path.exists(_SAVEFILEPATH):
         raise RuntimeError
-    with open(_SAVEFILEPATH, 'w', newline="") as saveFile:
-        counter = 0  # Only write data to file every 30 queries
-        batch = []
-        row = None
-        skipDate = None
-        for myQ in get_next_query():
-            if myQ.fromDate == skipDate:
-                continue
-            print(myQ.to_dict())
-            try:
-                row = data.get_input_data_for_date(myQ)
-                #  Prepare data
-                row = data.normalise_values(row)
-                row = data.one_hot_encode(row)
-                batch.append(row.to_csv(index=False, header=False))
-                counter += 1
-                #  Write data to csv file
-                if counter == 3:
-                    saveFile.writelines(batch)
-                    counter = 0
-                    batch = []
-                    break
-            except errors.MissingTrainError as e:
-                pass
-            except errors.MissingWeatherInfoError:
-                skipDate = myQ.fromDate  # Skip day as missing info
-            except errors.MissingStationDataError:
-                print("Missing station data")
-            except RuntimeError:
-                print("Something went wrong")
+    with open(_SAVEFILEPATH, 'a', newline="") as saveFile:
+        with concurrent.futures.ThreadPoolExecutor(6) as pool:
+            for dayQs in get_next_queries():
+                print(dayQs[0].to_dict())
+                try:
+                    weatherInfoForDay = api.get_historic_weather_details(dayQs[0])
+                except errors.MissingWeatherInfoError:
+                    print("\n")
+                    continue  # Skip day
 
-        saveFile.write("".join(batch))  # Save any last data
+                threads = [None]*len(dayQs)
+                records = []
+                # Create threads
+                for i in range(len(dayQs)):
+                    threads[i] = pool.submit(data.get_input_data_for_date, dayQs[i], weatherInfoForDay)
+                    sleep(5)  # Wait to avoid 503 error
 
+                # Continue once all threads are complete
+                for thread in concurrent.futures.as_completed(threads):
+                    record = thread.result()
+                    if record.empty:
+                        continue
+                    else:
+                        # Prepare data
+                        record = data.normalise_values(record)
+                        record = data.one_hot_encode(record)
+                        recordStr = record.to_csv(index=False, header=False)
+                        records.append(recordStr)
 
+                # Save data
+                if records:
+                    saveFile.write("".join(records))
+                    print("\n")

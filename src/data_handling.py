@@ -1,6 +1,8 @@
 import pandas as pd
+from time import sleep
 
 import api_interface as api
+import errors
 
 # Combine API calls to produce Database Row
 
@@ -17,6 +19,7 @@ _columnNames = [
     "Visibility",
     "Delay"
 ]
+
 
 def calculate_average_delay(locations):
     """Calculates and returns the average delay of a rail service"""
@@ -40,15 +43,34 @@ def calculate_average_delay(locations):
             pass
         totalDelay += stationDelay
 
+    if numStations == 0:
+        raise errors.MissingStationDataError
     averageDelay = round(totalDelay / numStations, 2)
     return averageDelay
 
 
-def get_input_data_for_date(myQ):
+def get_input_data_for_date(myQ, weatherInfo=None):
     """Combines and returns data from both APIs in a single database row"""
-    weatherInfo = api.get_historic_weather_details(myQ)
-    locations = api.get_past_service_details(myQ)
-    averageDelay = calculate_average_delay(locations)
+    if weatherInfo is None:
+        try:
+            weatherInfo = api.get_historic_weather_details(myQ)
+        except errors.MissingWeatherInfoError:
+            return pd.DataFrame()
+    try:
+        locations = api.get_past_service_details(myQ)
+    except errors.MissingStationDataError:
+        print("Missing station data.")
+        return pd.DataFrame()
+    except errors.MissingTrainError:
+        return pd.DataFrame()
+    except RuntimeError:
+        print("Something went wrong at runtime.")
+        return pd.DataFrame()
+    try:
+        averageDelay = calculate_average_delay(locations)
+    except errors.MissingStationDataError:
+        print("No valid station data.")
+        return pd.DataFrame()
     fullInfo = [[
         myQ.line,
         -1,
@@ -62,6 +84,7 @@ def get_input_data_for_date(myQ):
         weatherInfo["visibility"],
         averageDelay
     ]]
+
     return pd.DataFrame(data=fullInfo, columns=_columnNames)
 
 
