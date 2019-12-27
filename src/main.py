@@ -1,8 +1,11 @@
+import pandas as pd
+
 import query
 import data_collection as data
 import data_handling
 import api_interface as api
 import errors
+import util
 
 """
     TODO LIST:
@@ -24,3 +27,6 @@ import errors
 #     pass
 
 data.collect_data()
+
+# df = pd.read_csv(util.dataSetFilePath, names=util.columnNames[1:], nrows=30)
+# print(df)

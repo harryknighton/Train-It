@@ -1,6 +1,22 @@
 import time
 import calendar
 
+dataSetFilePath = "C:\\Users\\hjknighton\\PycharmProjects\\Train-It\\dataset\\dataset.txt"
+
+columnNames = [
+    "Line",
+    "HHE Line",
+    "LWS Line",
+    "SSE Line",
+    "isPeakTime",
+    "Temperature",
+    "Precipitation",
+    "Wind Speed",
+    "Cloud Cover",
+    "Visibility",
+    "Delay"
+]
+
 lines = ["HHE", "LWS", "SSE"]
 
 stations = {

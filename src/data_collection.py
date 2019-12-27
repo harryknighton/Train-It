@@ -10,8 +10,6 @@ import util
 import query
 import errors
 
-_SAVEFILEPATH = "C:\\Users\\hjknighton\\PycharmProjects\\Train-It\\dataset\\dataset.txt"
-
 
 def get_random_days(month, year):
     days = []
@@ -37,7 +35,7 @@ def get_two_services(line):
 
 def get_next_queries():
     """Get next query to be searched"""
-    yearMonths = [[2018, 7, 13]]
+    yearMonths = [[2019, 7, 9]]
     random.seed()  # Initialise random num generator
     for yearRange in yearMonths:
         year = yearRange[0]
@@ -55,9 +53,9 @@ def get_next_queries():
 
 def collect_data():
     """Creates and populates a csv file with train data"""
-    if not os.path.exists(_SAVEFILEPATH):
+    if not os.path.exists(util.dataSetFilePath):
         raise RuntimeError
-    with open(_SAVEFILEPATH, 'a', newline="") as saveFile:
+    with open(util.dataSetFilePath, 'a', newline="") as saveFile:
         with concurrent.futures.ThreadPoolExecutor(6) as pool:
             for dayQs in get_next_queries():
                 print(dayQs[0].to_dict())

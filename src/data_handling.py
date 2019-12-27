@@ -1,24 +1,12 @@
 import pandas as pd
-from time import sleep
 
 import api_interface as api
 import errors
+import util
 
 # Combine API calls to produce Database Row
 
-_columnNames = [
-    "Line",
-    "HHE Line",
-    "LWS Line",
-    "SSE Line",
-    "isPeakTime",
-    "Temperature",
-    "Precipitation",
-    "Wind Speed",
-    "Cloud Cover",
-    "Visibility",
-    "Delay"
-]
+
 
 
 def calculate_average_delay(locations):
@@ -85,7 +73,7 @@ def get_input_data_for_date(myQ, weatherInfo=None):
         averageDelay
     ]]
 
-    return pd.DataFrame(data=fullInfo, columns=_columnNames)
+    return pd.DataFrame(data=fullInfo, columns=util.columnNames)
 
 
 # Data Preparation
