@@ -1,13 +1,13 @@
 import pandas as pd
+import numpy as np
+from math import ceil
 
 import api_interface as api
 import errors
 import util
 
+
 # Combine API calls to produce Database Row
-
-
-
 
 def calculate_average_delay(locations):
     """Calculates and returns the average delay of a rail service"""
@@ -108,3 +108,33 @@ def one_hot_encode(row):
     row.at[0, "SSE Line"] = 1 if row.at[0, "Line"] == "SSE" else 0
     row = row.drop(labels="Line", axis=1)
     return row
+
+
+# Batch Handling
+
+def load_data(numRows):
+    data = pd.read_csv(util.dataSetFilePath, names=util.columnNames[1:], nrows=numRows)
+    return data.to_numpy()
+
+
+def split_data(data, batchSize):
+    """Splits data into two arrays of batches of a given size"""
+    testBatch = data[0]
+    trainData = data[1]
+    # Split data in 4:1 ratio
+    for i in range(2, len(data)):
+        if i % 5 != 0:
+            trainData = np.column_stack([trainData, data[i]])
+        else:
+            testBatch = np.column_stack([testBatch, data[i]])
+
+    # Split train data set into batches
+    numBatches = ceil(len(trainData) / batchSize)
+    trainBatches = np.array_split(trainData, numBatches)
+    return trainBatches, testBatch
+
+
+def separate_features_and_labels(data):
+    labels = data[-1, :]
+    features = np.delete(data, obj=-1, axis=0)
+    return features, labels

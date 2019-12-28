@@ -1,11 +1,11 @@
 import pandas as pd
 
 import query
-import data_collection as data
-import data_handling
+import data_handling as data
 import api_interface as api
 import errors
 import util
+import nn
 
 """
     TODO LIST:
@@ -26,7 +26,12 @@ import util
 # except RuntimeError:
 #     pass
 
-data.collect_data()
+d = data.load_data(20)
 
-# df = pd.read_csv(util.dataSetFilePath, names=util.columnNames[1:], nrows=30)
-# print(df)
+train, test = data.split_data(d, 16)
+myNN = nn.NeuralNetwork()
+f, l = data.separate_features_and_labels(train[0])
+result = myNN.train(f, l)
+print(result)
+loss = nn.get_loss(result, l)
+print(loss)
