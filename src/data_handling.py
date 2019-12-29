@@ -112,7 +112,7 @@ def one_hot_encode(row):
 
 # Batch Handling
 
-def load_data(numRows):
+def load_data(numRows=None):
     data = pd.read_csv(util.dataSetFilePath, names=util.columnNames[1:], nrows=numRows)
     return data.to_numpy()
 
@@ -129,8 +129,8 @@ def split_data(data, batchSize):
             testBatch = np.column_stack([testBatch, data[i]])
 
     # Split train data set into batches
-    numBatches = ceil(len(trainData) / batchSize)
-    trainBatches = np.array_split(trainData, numBatches)
+    numBatches = ceil(trainData.shape[1] / batchSize)
+    trainBatches = np.array_split(trainData, numBatches, axis=1)
     return trainBatches, testBatch
 
 

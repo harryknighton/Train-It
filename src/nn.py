@@ -63,12 +63,33 @@ class NeuralNetwork:
         # Return final value
         return self.aCache[self.numLayers-1]
 
-    def backward(self):
-        pass
+    def backward(self, dLoss_dY):
+        """Performs back-propagation algorithm on network"""
+        dLoss_dA = dLoss_dY
+        dLoss_dZ = None
+        dLoss_dW = None
+        # Iterate through layers backwards
+        for i in range(self.numLayers-1, 0, -1):
+            # Calculate Derivatives
+            if self.activationFuncs[i] == "ReLU":
+                dLoss_dZ = dReLU(self.zCache[i]) * dLoss_dA
+            elif self.activationFuncs[i] == "Linear":
+                dLoss_dZ = dLoss_dA
+            else:
+                raise RuntimeError
+            m = self.aCache[i-1].shape[1]
+            dLoss_dW = np.dot(dLoss_dZ, np.transpose(self.aCache[i-1])) / m
+            dLoss_db = np.sum(dLoss_dZ, axis=1, keepdims=True) / m
+            dLoss_dA = np.dot(np.transpose(self.weights[i]), dLoss_dZ)
+
+            # Adjust parameters
+            self.weights[i] -= self.learnRate * dLoss_dW
+            self.biases[i] -= self.learnRate * dLoss_db
+
 
     def train(self, batch, features):
         self.aCache[0] = batch
         result = self.forward()
-        return result
-        # dLoss = self.get_loss()
-        # self.backward()
+        dLoss = get_loss_derivative(result, features)
+        self.backward(dLoss)
+        print(get_loss(result, features))

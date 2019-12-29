@@ -26,12 +26,11 @@ import nn
 # except RuntimeError:
 #     pass
 
-d = data.load_data(20)
+d = data.load_data()
 
-train, test = data.split_data(d, 16)
+train, test = data.split_data(d, 34)
 myNN = nn.NeuralNetwork()
-f, l = data.separate_features_and_labels(train[0])
-result = myNN.train(f, l)
-print(result)
-loss = nn.get_loss(result, l)
-print(loss)
+for batch in train:
+    print(batch.shape)
+    f, l = data.separate_features_and_labels(batch)
+    myNN.train(f, l)
