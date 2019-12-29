@@ -26,11 +26,6 @@ import nn
 # except RuntimeError:
 #     pass
 
-d = data.load_data()
-
-train, test = data.split_data(d, 34)
 myNN = nn.NeuralNetwork()
-for batch in train:
-    print(batch.shape)
-    f, l = data.separate_features_and_labels(batch)
-    myNN.train(f, l)
+d = data.load_data()
+nn.train_network(myNN, d, 100, 48, showAll=True)

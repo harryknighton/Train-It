@@ -1,5 +1,6 @@
 import numpy as np
 
+import data_handling as data
 
 def ReLU(x):
     return np.maximum(0.05*x, x)
@@ -13,12 +14,19 @@ def get_loss(y, yHat):
     """Returns sum of MSE's of y"""
     diffs = np.subtract(yHat, y) ** 2
     loss = np.sum(diffs) / diffs.shape[1]
-    return loss
+    return round(loss, 2)
 
 
 def get_loss_derivative(y, yHat):
     """Returns loss function derivatives of y"""
     return -2 * np.subtract(yHat, y)
+
+
+def get_accuracy(y, yHat):
+    diffs = abs(np.subtract(yHat, y))
+    num = (diffs < 0.05).sum()
+    accuracy = 100*(num/y.shape[1])
+    return round(accuracy, 2)
 
 
 class NeuralNetwork:
@@ -32,7 +40,7 @@ class NeuralNetwork:
         self.biases = [0]*self.numLayers
 
         # Back-propagation Parameters
-        self.learnRate = 0.003
+        self.learnRate = 0.001
         self.aCache = [0]*self.numLayers
         self.zCache = [0]*self.numLayers
 
@@ -86,10 +94,39 @@ class NeuralNetwork:
             self.weights[i] -= self.learnRate * dLoss_dW
             self.biases[i] -= self.learnRate * dLoss_db
 
-
     def train(self, batch, features):
         self.aCache[0] = batch
         result = self.forward()
         dLoss = get_loss_derivative(result, features)
         self.backward(dLoss)
-        print(get_loss(result, features))
+
+    def test(self, batch, features):
+        self.aCache[0] = batch
+        result = self.forward()
+        loss = get_loss(result, features)
+        accuracy = get_accuracy(result, features)
+        return loss, accuracy
+
+    def make_prediction(self, x):
+        self.aCache[0] = x
+        result = self.forward()
+        return data.decode_delay(result)
+
+
+def train_network(network, dataset, numEpochs, batchSize, showAll=False):
+    train, test = data.split_data(dataset, batchSize)
+    tF, tL = data.separate_features_and_labels(test)
+    maxAccuracy = -1
+    for epoch in range(numEpochs):
+        for batch in train:
+            f, l = data.separate_features_and_labels(batch)
+            network.train(f, l)
+        loss, acc = network.test(tF, tL)
+        if acc > maxAccuracy:
+            maxAccuracy = acc
+        if showAll:
+            print("Epoch", epoch)
+            print("Loss:", loss)
+            print("Accuracy:", acc)
+            print()
+    return maxAccuracy
