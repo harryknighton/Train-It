@@ -1,7 +1,8 @@
 import time
 import calendar
 
-dataSetFilePath = "C:\\Users\\hjknighton\\PycharmProjects\\Train-It\\dataset\\dataset.txt"
+dataSetFilePath = "C:\\Users\\hjknighton\\PycharmProjects\\Train-It\\saves\\dataset.txt"
+paramFilePath = "C:\\Users\\hjknighton\\PycharmProjects\\Train-It\\saves\\parameters.txt"
 
 columnNames = [
     "Line",

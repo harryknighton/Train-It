@@ -28,4 +28,6 @@ import nn
 
 myNN = nn.NeuralNetwork()
 d = data.load_data()
-nn.train_network(myNN, d, 100, 48, showAll=True)
+nn.train_network(myNN, d, 5, 48, showAll=True)
+myNN.save_parameters()
+

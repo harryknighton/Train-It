@@ -1,6 +1,7 @@
 import numpy as np
 
 import data_handling as data
+from util import paramFilePath
 
 def ReLU(x):
     return np.maximum(0.05*x, x)
@@ -30,7 +31,7 @@ def get_accuracy(y, yHat):
 
 
 class NeuralNetwork:
-    def __init__(self):
+    def __init__(self, initFromFile=False):
         # Architecture Parameters
         self.shape = [9, 7, 1]
         self.numLayers = len(self.shape)
@@ -44,7 +45,10 @@ class NeuralNetwork:
         self.aCache = [0]*self.numLayers
         self.zCache = [0]*self.numLayers
 
-        self.initialise_parameters()
+        if initFromFile:
+            self.load_parameters()
+        else:
+            self.initialise_parameters()
 
     def initialise_parameters(self):
         """Populate weights and biases with small random floats."""
@@ -52,6 +56,22 @@ class NeuralNetwork:
         for i in range(1, self.numLayers):
             self.weights[i] = np.random.randn(self.shape[i], self.shape[i-1]) * 0.1
             self.biases[i] = np.random.rand(self.shape[i], 1) * 0.1
+
+    def save_parameters(self):
+        """Saves network parameters to csv files"""
+        open(paramFilePath, 'w').close() # Clear file contents
+        with open(paramFilePath, 'a') as outFile:
+            # Write weights and biases to file
+            for i in range(1, self.numLayers):
+                np.savetxt(outFile, self.weights[i], delimiter=",", fmt='%.8f')
+                np.savetxt(outFile, self.biases[i], delimiter=",", fmt='%.8f')
+
+    def load_parameters(self):
+        """Loads parameters into network from save file"""
+        with open(paramFilePath, 'r') as outFile:
+            for i in range(1, self.numLayers):
+                self.weights[i] = np.loadtxt(outFile, delimiter=",", max_rows=self.shape[i])
+                self.biases[i] = np.loadtxt(outFile, delimiter=",", max_rows=self.shape[i])
 
     def forward(self):
         """Feeds aCache[0] through the network."""
