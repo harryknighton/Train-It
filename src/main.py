@@ -6,6 +6,7 @@ import api_interface as api
 import errors
 import util
 import nn
+import optimisation as op
 
 """
     TODO LIST:
@@ -26,8 +27,10 @@ import nn
 # except RuntimeError:
 #     pass
 
-myNN = nn.NeuralNetwork()
-d = data.load_data()
-nn.train_network(myNN, d, 5, 48, showAll=True)
-myNN.save_parameters()
+# myNN = nn.NeuralNetwork([9, 15, 12, 1], 0.0006)
+# d = data.load_data()
+# print(op.optimally_train_network(myNN, d, 16))
+# nn.train_network(myNN, d, 10, 16, showAll=True)
+# print(op.optimise_learn_rate(d, [9, 7, 1], 48))
 
+# op.optimise_parameters(d)

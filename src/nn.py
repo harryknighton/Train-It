@@ -1,4 +1,6 @@
 import numpy as np
+from time import time
+from statistics import mean
 
 import data_handling as data
 from util import paramFilePath
@@ -31,17 +33,29 @@ def get_accuracy(y, yHat):
 
 
 class NeuralNetwork:
-    def __init__(self, initFromFile=False):
+    def __init__(self, pShape, pLearnRate, initFromFile=False, adam=False):
         # Architecture Parameters
-        self.shape = [9, 7, 1]
+        self.shape = pShape
         self.numLayers = len(self.shape)
-        self.activationFuncs = [None, "ReLU", "Linear"]
+        self.activationFuncs = [None, *["ReLU" for x in range(self.numLayers-2)], "Linear"]
 
         self.weights = [0]*self.numLayers
         self.biases = [0]*self.numLayers
 
         # Back-propagation Parameters
-        self.learnRate = 0.001
+        if adam:
+            self.adam = True
+            self.iteration = 1
+            self.beta = 0.9
+            self.beta2 = 0.999
+            self.epsilon = pow(10, -8)
+            self.weightGradients = [0]*self.numLayers
+            self.weightsSquared = [0]*self.numLayers
+            self.biasGradients = [0]*self.numLayers
+            self.biasesSquared = [0]*self.numLayers
+        else:
+            self.adam = False
+        self.learnRate = pLearnRate
         self.aCache = [0]*self.numLayers
         self.zCache = [0]*self.numLayers
 
@@ -52,10 +66,15 @@ class NeuralNetwork:
 
     def initialise_parameters(self):
         """Populate weights and biases with small random floats."""
-        np.random.seed(0)
+        np.random.seed(int(time()))  # Large difference between calls
         for i in range(1, self.numLayers):
             self.weights[i] = np.random.randn(self.shape[i], self.shape[i-1]) * 0.1
             self.biases[i] = np.random.rand(self.shape[i], 1) * 0.1
+            if self.adam:
+                self.weightGradients[i] = 0
+                self.weightsSquared[i] = 0
+                self.biasGradients[i] = 0
+                self.biasesSquared[i] = 0
 
     def save_parameters(self):
         """Saves network parameters to csv files"""
@@ -110,15 +129,34 @@ class NeuralNetwork:
             dLoss_db = np.sum(dLoss_dZ, axis=1, keepdims=True) / m
             dLoss_dA = np.dot(np.transpose(self.weights[i]), dLoss_dZ)
 
-            # Adjust parameters
-            self.weights[i] -= self.learnRate * dLoss_dW
-            self.biases[i] -= self.learnRate * dLoss_db
+            # Adam Optimisation
+            if self.adam:
+                self.iteration += 1
 
-    def train(self, batch, features):
+                self.weightGradients[i] = self.beta * self.weightGradients[i] + (1 - self.beta) * dLoss_dW
+                self.weightsSquared[i] = self.beta2 * self.weightsSquared[i] + (1 - self.beta2) * (np.square(dLoss_dW))
+                self.biasGradients[i] = self.beta * self.biasGradients[i] + (1 - self.beta) * dLoss_db
+                self.biasesSquared[i] = self.beta2 * self.biasesSquared[i] + (1 - self.beta2) * (np.square(dLoss_db ** 2))
+
+                vdWCorrected = self.weightGradients[i] / (1 - self.beta ** self.iteration)
+                sdWCorrected = self.weightsSquared[i] / (1 - self.beta2 ** self.iteration)
+                vdbCorrected = self.biasGradients[i] / (1 - self.beta ** self.iteration)
+                sdbCorrected = self.biasesSquared[i] / (1 - self.beta2 ** self.iteration)
+
+                # Adjust parameters
+                self.weights[i] = self.weights[i] - self.learnRate * (vdWCorrected / (np.sqrt(sdWCorrected) + self.epsilon))
+                self.biases[i] = self.biases[i] - self.learnRate * (vdbCorrected / (np.sqrt(sdbCorrected) + self.epsilon))
+            else:
+                self.weights[i] -= self.learnRate * dLoss_dW
+                self.biases[i] -= self.learnRate * dLoss_db
+
+    def train(self, batch, features, returnAccuracy=False):
         self.aCache[0] = batch
         result = self.forward()
         dLoss = get_loss_derivative(result, features)
         self.backward(dLoss)
+        if returnAccuracy:
+            return get_accuracy(result, features)
 
     def test(self, batch, features):
         self.aCache[0] = batch
@@ -136,17 +174,20 @@ class NeuralNetwork:
 def train_network(network, dataset, numEpochs, batchSize, showAll=False):
     train, test = data.split_data(dataset, batchSize)
     tF, tL = data.separate_features_and_labels(test)
+    trainAccs = []
     maxAccuracy = -1
-    for epoch in range(numEpochs):
+    for epoch in range(1, numEpochs+1):
         for batch in train:
             f, l = data.separate_features_and_labels(batch)
-            network.train(f, l)
-        loss, acc = network.test(tF, tL)
-        if acc > maxAccuracy:
-            maxAccuracy = acc
+            trainAccs.append(network.train(f, l, returnAccuracy=True))
+        loss, testAcc = network.test(tF, tL)
+        trainAcc = mean(trainAccs)
+        if testAcc > maxAccuracy:
+            maxAccuracy = testAcc
         if showAll:
             print("Epoch", epoch)
             print("Loss:", loss)
-            print("Accuracy:", acc)
+            print("Test Accuracy:", testAcc)
+            print("Train Accuracy", trainAcc)
             print()
     return maxAccuracy
