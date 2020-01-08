@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Train It!</title>
+</head>
+<body>
+    <h1>Train It!</h1>
+    <h2>Service Details</h2>
+    <form action="{{ url_for('handle_form') }}" method="get">
+        Station Codes
+        <input type="text" name="source" placeholder="From" maxlength="3">
+        <input type="text" name="destination" placeholder="To" maxlength="3"><br>
+        Journey Date (DD/MM/YY)
+        <input type="number" name="day" min="1" max="31" value="8">
+        <input type="number" name="month" min="1" max="12" value="1">
+        <input type="number" name="year" min="2020" max="2020" value="2020"><br>
+        Journey Time
+        <input type="time" name="time" value="19:30"><br>
+        <input type="submit">
+    </form>
+    {% if prediction %}
+        Output: {{ prediction }}
+    {% elif errorMessage %}
+        Error: {{ errorMessage }}
+    {% endif %}
+</body>
+</html>

@@ -76,6 +76,25 @@ def get_input_data_for_date(myQ, weatherInfo=None):
     return pd.DataFrame(data=fullInfo, columns=util.columnNames)
 
 
+def get_input_data_for_future_query(myQ):
+    """Creates DataFrame row for future date"""
+    weatherInfo = api.get_forecast_info(myQ)
+    fullInfo = [[
+        myQ.line,
+        -1,
+        -1,  # Placeholder to one-hot-encode line
+        -1,
+        myQ.isRushHour,
+        weatherInfo["temperature"],
+        weatherInfo["precipIntensity"],
+        weatherInfo["windSpeed"],
+        weatherInfo["cloudCover"],
+        weatherInfo["visibility"],
+    ]]
+    return pd.DataFrame(data=fullInfo, columns=util.columnNames[:-1])
+
+
+
 # Data Preparation
 _averageWeatherStats = {
     # [0] for min and [1] for max values
@@ -87,8 +106,10 @@ _averageWeatherStats = {
 }
 
 
-def normalise_values(row):
+def normalise_values(row, containsDelay=True):
     for varName, data in _averageWeatherStats.items():
+        if not containsDelay and varName == 'Delay':
+            continue
         newValue = row[varName] - data[0]
         newValue /= (data[1] - data[0])  # Divide by range
         row[varName] = newValue
