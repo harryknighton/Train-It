@@ -75,9 +75,6 @@ class NeuralNetwork:
                 self.weightsSquared[i] = 0
                 self.biasGradients[i] = 0
                 self.biasesSquared[i] = 0
-            print(i)
-            print(self.weights[i].shape)
-            print(self.biases[i].shape)
 
     def save_parameters(self):
         """Saves network parameters to csv files"""
@@ -90,12 +87,10 @@ class NeuralNetwork:
 
     def load_parameters(self):
         """Loads parameters into network from save file"""
-        with open(paramFilePath, 'r') as outFile:
+        with open(paramFilePath, 'r') as inFile:
             for i in range(1, self.numLayers):
-                print(i)
-                self.weights[i] = np.loadtxt(outFile, delimiter=",", max_rows=self.shape[i])
-                self.biases[i] = np.loadtxt(outFile, delimiter=",", max_rows=self.shape[i])
-                print(self.biases[i])
+                self.weights[i] = np.loadtxt(inFile, delimiter=",", max_rows=self.shape[i], ndmin=2)
+                self.biases[i] = np.loadtxt(inFile, delimiter=",", max_rows=self.shape[i], ndmin=2)
 
     def forward(self):
         """Feeds aCache[0] through the network."""

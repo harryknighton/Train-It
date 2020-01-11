@@ -1,28 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Train It!</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
 </head>
+
 <body>
-    <h1>Train It!</h1>
-    <h2>Service Details</h2>
-    <form action="{{ url_for('handle_form') }}" method="get">
-        Station Codes
-        <input type="text" name="source" placeholder="From" maxlength="3">
-        <input type="text" name="destination" placeholder="To" maxlength="3"><br>
-        Journey Date (DD/MM/YY)
-        <input type="number" name="day" min="1" max="31" value="8">
-        <input type="number" name="month" min="1" max="12" value="1">
-        <input type="number" name="year" min="2020" max="2020" value="2020"><br>
-        Journey Time
-        <input type="time" name="time" value="19:30"><br>
-        <input type="submit">
-    </form>
-    {% if prediction %}
-        Output: {{ prediction }}
-    {% elif errorMessage %}
-        Error: {{ errorMessage }}
-    {% endif %}
+    <div id="container">
+        <div id="title-bar">
+            <h1>Train It!</h1>
+        </div>
+        <div id="content">
+            <div id="input-form">
+                <h2>Service Details</h2><hr>
+                <form action="{{ url_for('handle_form') }}" method="get">
+                    Station Codes<br>
+                    <input type="text" name="source" placeholder="From" maxlength="3" size="5">
+                    <input type="text" name="destination" placeholder="To" maxlength="3" size="5"><br><br>
+                    Journey Date (DD/MM/YYYY)<br>
+                    <input type="number" name="day" min="1" max="31" value="8" size="2">
+                    <input type="number" name="month" min="1" max="12" value="1" size="2">
+                    <input type="number" name="year" min="2020" max="2020" value="2020" size="4"><br><br>
+                    Journey Time<br>
+                    <input type="time" name="time" value="19:30"><br><br>
+                    <input type="submit"><br>
+                </form>
+            </div>
+            <div id="results">
+                <h2>Results</h2><hr>
+                {% if prediction %}
+                    Delay: {{ prediction }}
+                {% elif errorMessage %}
+                    Error: {{ errorMessage }}
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </body>
 </html>

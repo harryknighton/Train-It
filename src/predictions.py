@@ -6,21 +6,6 @@ import data_handling
 import errors
 import nn
 
-# myQ = None
-# try:
-#     myQ = query.Query("BTN", "LWS", [19, 7, 2018], [18, 11])
-#     details = data_handling.get_input_data_for_date(myQ)
-#     print(details)
-# except ValueError:
-#     print("Bad input data for query.")
-#     quit()
-# except errors.MissingTrainError as e:
-#     pass
-# except errors.MissingStationDataError:
-#     print("Missing station data.")
-# except RuntimeError:
-#     pass
-
 sessionNN = None
 # sessionNN = nn.NeuralNetwork([9, 15, 12, 1], 0.0003)
 
@@ -78,4 +63,8 @@ def process_request(src, dest, date, time):
 # testData = ["HHE", "BTN", [8, 1, 2020], "19:30"]
 #
 # print(process_request(*testData))
-load_network()
+# n = nn.NeuralNetwork([9, 15, 12, 1], 0.0003)
+# nn.train_network(n, data_handling.load_data(), 16, 100)
+# n.save_parameters()
+# newN = nn.NeuralNetwork([9, 15, 12, 1], 0.0003, initFromFile=True)
+# load_network()

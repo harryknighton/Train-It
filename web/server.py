@@ -22,14 +22,22 @@ def handle_form():
                                                    request.args['time'])
     if successFlag:
         app.logger.info(res)
-        return render_template('home.html', prediction=res)
+        message = get_delay_str(res)
+        return render_template('home.html', prediction=message)
     else:
         app.logger.info(res)
         return render_template('home.html', errorMessage=res)
 
 
+def get_delay_str(delay):
+    if delay < 0:
+        return str(abs(delay)) + "m early"
+    elif delay == 0:
+        return "No delay"
+    else:
+        return str(delay) + "m late"
 
 
 if __name__ == '__main__':
-    # predictions.load_network()
+    predictions.load_network()
     app.run(debug=True)
