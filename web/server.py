@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request
+from math import ceil, floor
 
 import predictions
 import sys
@@ -8,7 +9,7 @@ app = Flask(__name__,
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return render_template('home.html', delayColour="white")
 
 
 @app.route('/handle_form', methods=['GET'])
@@ -20,22 +21,27 @@ def handle_form():
                                                    request.args['destination'],
                                                    listDate,
                                                    request.args['time'])
+    app.logger.info(res)
     if successFlag:
-        app.logger.info(res)
-        message = get_delay_str(res)
-        return render_template('home.html', prediction=message)
+        message, colour = get_delay_str(res)
+        return render_template('home.html', prediction=message, delayColour=colour)
     else:
-        app.logger.info(res)
-        return render_template('home.html', errorMessage=res)
+        return render_template('home.html', errorMessage=res, delayColour="white")
 
 
 def get_delay_str(delay):
+    seconds = int((abs(delay) % 1) * 60)
     if delay < 0:
-        return str(abs(delay)) + "m early"
+        return "{}m {}s early".format(ceil(delay), seconds), 'green'
     elif delay == 0:
-        return "No delay"
+        return "No delay", 'green'
+    elif delay <= 0.5:
+        return "{}s late".format(seconds), 'green'
+    elif delay <= 2:
+        return "{}m {}s late".format(floor(delay), seconds), 'orange'
     else:
-        return str(delay) + "m late"
+        return "{}m {}s late".format(floor(delay), seconds), 'red'
+
 
 
 if __name__ == '__main__':
