@@ -32,9 +32,10 @@ def handle_form():
                                source=request.args['source'],
                                destination=request.args['destination'],
                                date=get_date_string(listDate),
-                               time=request.args['time'])
+                               time=request.args['time'],
+                               gridColour="black")
     else:
-        return render_template('home.html', errorMessage=res, delayColour="white")
+        return render_template('home.html', errorMessage=res, delayColour="white", gridColour="white")
 
 
 def get_delay_str(delay):

@@ -19,15 +19,15 @@
                 </div>
                 <div id="input-form">
                     <form action="{{ url_for('handle_form') }}" method="get">
-                        Station Codes<br>
+                        <span class="label">Station Codes</span><br>
                         <input type="text" name="source" placeholder="From" maxlength="3" size="5">
                         <input type="text" name="destination" placeholder="To" maxlength="3" size="5"><br><br>
-                        Journey Date (DD/MM/YYYY)<br>
-                        <input type="number" name="day" min="1" max="31" value="{{ day }}" size="2">
-                        <input type="number" name="month" min="1" max="12" value="{{ month }}" size="2">
-                        <input type="number" name="year" min="2020" max="2020" value="{{ year }}" size="4"><br><br>
-                        Journey Time<br>
-                        <input type="time" name="time" value="19:30"><br><br>
+                        <span class="label">Journey Date</span> (DD/MM/YYYY)<br>
+                        <input type="number" name="day" id="day" min="1" max="31" value="{{ day }}" size="2">
+                        <input type="number" name="month" id="month" min="1" max="12" value="{{ month }}" size="2">
+                        <input type="number" name="year" id="year" min="2020" max="2020" value="{{ year }}" size="4"><br><br>
+                        <span class="label">Journey Time</span><br>
+                        <input type="time" name="time" id="time" value="19:30"><br><br>
                         <input type="submit"><br>
                     </form>
                 </div>
@@ -41,7 +41,7 @@
                 <div class="box-header">
                     <h2>Results</h2>
                 </div>
-                <div id="results-content">
+                <div id="results-content" style="background-color: {{ gridColour }}">
                     <div id="service-details">
                         {% if source %}
                             <p>{{ source }} to {{ destination }}</p>
@@ -51,7 +51,7 @@
                     </div>
                     <div id="delay-result" style="background-color: {{ delayColour }}">
                         {% if prediction %}
-                            <p>Delay: {{ prediction }}</p>
+                        <p><b>{{ prediction }}</b></p>
                         {% endif %}
                     </div>
                     <div id="result-info">
@@ -67,5 +67,15 @@
             <img src="{{ url_for('static', filename='img/poweredby-darksky.png') }}" alt="Powered by Dark Sky">
         </div>
     </div>
+
+    <script>
+        var today = new Date();
+        var currTime = today.getHours() + ':' + today.getMinutes();
+        document.getElementById('time').value = currTime;
+        document.getElementById('day').value = today.getDate();
+        document.getElementById('month').value = today.getMonth() + 1;
+        document.getElementById('year').value = today.getFullYear();
+
+    </script>
 </body>
 </html>

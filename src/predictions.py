@@ -10,6 +10,7 @@ import optimisation
 
 sessionNN = None
 
+
 def load_network():
     global sessionNN
     sessionNN = nn.NeuralNetwork([9, 12, 6, 1], 0.0003, initFromFile=True)
