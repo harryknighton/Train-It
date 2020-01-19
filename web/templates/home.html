@@ -13,48 +13,58 @@
             <h1>Train It!</h1>
         </div>
         <div id="content">
-            <div id="input-box" class="info-box">
+            <div class="info-box">
                 <div class="box-header">
                     <h2>Check A Service</h2>
                 </div>
-                <div id="input-form"
+                <div id="input-form">
                     <form action="{{ url_for('handle_form') }}" method="get">
                         Station Codes<br>
                         <input type="text" name="source" placeholder="From" maxlength="3" size="5">
                         <input type="text" name="destination" placeholder="To" maxlength="3" size="5"><br><br>
                         Journey Date (DD/MM/YYYY)<br>
-                        <input type="number" name="day" min="1" max="31" value="8" size="2">
-                        <input type="number" name="month" min="1" max="12" value="1" size="2">
-                        <input type="number" name="year" min="2020" max="2020" value="2020" size="4"><br><br>
+                        <input type="number" name="day" min="1" max="31" value="{{ day }}" size="2">
+                        <input type="number" name="month" min="1" max="12" value="{{ month }}" size="2">
+                        <input type="number" name="year" min="2020" max="2020" value="{{ year }}" size="4"><br><br>
                         Journey Time<br>
                         <input type="time" name="time" value="19:30"><br><br>
                         <input type="submit"><br>
                     </form>
                 </div>
+                <div id="error-box">
+                    {% if errorMessage %}
+                            <p>Error: {{ errorMessage }}</p>
+                    {% endif %}
+                </div>
             </div>
-            <div id="results-box" class="info-box">
-                <div class="info-header">
+            <div class="info-box">
+                <div class="box-header">
                     <h2>Results</h2>
                 </div>
                 <div id="results-content">
                     <div id="service-details">
-                        <p>14:47</p>
-                        <p>HWD to BTN</p>
-                        <p>Run by Thameslink</p>
+                        {% if source %}
+                            <p>{{ source }} to {{ destination }}</p>
+                            <p>{{ time }}</p>
+                            <p>{{ date }}</p>
+                        {% endif %}
                     </div>
                     <div id="delay-result" style="background-color: {{ delayColour }}">
                         {% if prediction %}
                             <p>Delay: {{ prediction }}</p>
-                        {% elif errorMessage %}
-                            <p>Error: {{ errorMessage }}</p>
                         {% endif %}
                     </div>
                     <div id="result-info">
-                        <p>Weather: Rain</p>
-                        <p>Incidents: None</p>
+                        {% if weather %}
+                            <p>Weather: {{ weather }}</p>
+                        {% endif %}
                     </div>
                 </div>
              </div>
+        </div>
+        <div id="logos">
+            <img src="{{ url_for('static', filename='img/NRE_Powered_logo.png') }}" alt="Powered by National Rail">
+            <img src="{{ url_for('static', filename='img/poweredby-darksky.png') }}" alt="Powered by Dark Sky">
         </div>
     </div>
 </body>

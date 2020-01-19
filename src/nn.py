@@ -22,8 +22,11 @@ def get_loss(y, yHat):
 
 def get_loss_derivative(y, yHat):
     """Returns loss function derivatives of y"""
-    return -2 * np.subtract(yHat, y)
-
+    losses = -2 * np.subtract(yHat, y)
+    # Give more weighting to delayed services
+    losses[:, yHat > 0.4] *= 0.75
+    losses[:, yHat < 0.4] *= 0.25
+    return losses
 
 def get_accuracy(y, yHat):
     diffs = abs(np.subtract(yHat, y))

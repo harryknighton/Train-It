@@ -1,7 +1,7 @@
 import nn
 from numpy import arange
 
-import data_handling as data
+import data_handling
 
 
 def get_next_pattern():
@@ -88,19 +88,27 @@ def optimally_train_network(network, dataset, batchSize):
     optimalWeights = []
     optimalBiases = []
     maxAcc = -1
-    train, test = data.split_data(dataset, batchSize)
-    tF, tL = data.separate_features_and_labels(test)
+    train, test = data_handling.split_data(dataset, batchSize)
+    tF, tL = data_handling.separate_features_and_labels(test)
     # Train
     for epoch in range(150):
         for batch in train:
-            f, l = data.separate_features_and_labels(batch)
-            network.train(f, l)
+            f, l = data_handling.separate_features_and_labels(batch)
+            trainAcc = network.train(f, l, returnAccuracy=True)
         loss, testAcc = network.test(tF, tL)
-        print("testAcc", testAcc)
-        print("num", numLower)
-        if testAcc > maxAcc:
+        meanAcc = (trainAcc + testAcc) / 2
+        print("Acc", meanAcc)
+        if meanAcc > maxAcc:
             # optimalWeights always holds best weight set
             optimalWeights = network.weights
             optimalBiases = network.biases
-            maxAcc = testAcc
-    return maxAcc
+            maxAcc = meanAcc
+    return network, maxAcc
+
+
+def save_best_loadout(architecture, learnRate, batchSize):
+    network = nn.NeuralNetwork(architecture, learnRate)
+    d = data_handling.load_data()
+    network, acc = optimally_train_network(network, d, batchSize)
+    print("Highest Accuracy:", acc)
+    network.save_parameters()

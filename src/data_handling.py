@@ -78,7 +78,7 @@ def get_input_data_for_date(myQ, weatherInfo=None):
 
 def get_input_data_for_future_query(myQ):
     """Creates DataFrame row for future date"""
-    weatherInfo = api.get_forecast_info(myQ)
+    weatherInfo, summary = api.get_forecast_info(myQ)
     fullInfo = [[
         myQ.line,
         -1,
@@ -91,7 +91,7 @@ def get_input_data_for_future_query(myQ):
         weatherInfo["cloudCover"],
         weatherInfo["visibility"],
     ]]
-    return pd.DataFrame(data=fullInfo, columns=util.columnNames[:-1])
+    return pd.DataFrame(data=fullInfo, columns=util.columnNames[:-1]), summary
 
 
 

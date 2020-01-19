@@ -117,4 +117,4 @@ def get_forecast_info(myQ):
             if hour["time"] == targetTime:
                 targetData = hour
                 break
-        return extract_useful_weather_data(targetData)
+        return extract_useful_weather_data(targetData), targetData["summary"]
