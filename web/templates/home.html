@@ -23,11 +23,11 @@
                         <input type="text" name="source" placeholder="From" maxlength="3" size="5">
                         <input type="text" name="destination" placeholder="To" maxlength="3" size="5"><br><br>
                         <span class="label">Journey Date</span> (DD/MM/YYYY)<br>
-                        <input type="number" name="day" id="day" min="1" max="31" value="{{ day }}" size="2">
-                        <input type="number" name="month" id="month" min="1" max="12" value="{{ month }}" size="2">
-                        <input type="number" name="year" id="year" min="2020" max="2020" value="{{ year }}" size="4"><br><br>
+                        <input type="number" name="day" id="day" min="1" max="31" size="2">
+                        <input type="number" name="month" id="month" min="1" max="12" size="2">
+                        <input type="number" name="year" id="year" min="2020" max="2020" size="4"><br><br>
                         <span class="label">Journey Time</span><br>
-                        <input type="time" name="time" id="time" value="19:30"><br><br>
+                        <input type="time" name="time" id="time"><br><br>
                         <input type="submit"><br>
                     </form>
                 </div>
@@ -75,7 +75,6 @@
         document.getElementById('day').value = today.getDate();
         document.getElementById('month').value = today.getMonth() + 1;
         document.getElementById('year').value = today.getFullYear();
-
     </script>
 </body>
 </html>
