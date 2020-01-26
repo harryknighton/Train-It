@@ -1,16 +1,15 @@
 from flask import Flask, render_template, request
 from math import ceil, floor
-from datetime import datetime
 
 import predictions
-import sys
+from util import stationCodeToNames
 
-app = Flask(__name__,
-            template_folder="templates")
+
+app = Flask(__name__, template_folder="templates")
 
 @app.route('/')
 def home():
-    return render_template('home.html', delayColour="white")
+    return render_template('home.html', delayColour="white", stationCodes=stationCodeToNames)
 
 
 @app.route('/handle_form', methods=['GET'])
@@ -33,9 +32,14 @@ def handle_form():
                                destination=request.args['destination'],
                                date=get_date_string(listDate),
                                time=request.args['time'],
-                               gridColour="black")
+                               gridColour="black",
+                               stationCodes=stationCodeToNames)
     else:
-        return render_template('home.html', errorMessage=res, delayColour="white", gridColour="white")
+        return render_template('home.html',
+                               errorMessage=res,
+                               delayColour="white",
+                               gridColour="white",
+                               stationCodes=stationCodeToNames)
 
 
 def get_delay_str(delay):
@@ -45,7 +49,7 @@ def get_delay_str(delay):
     elif delay == 0:
         return "No delay", '#7CFC00'
     elif delay <= 1:
-        return "{}s late".format(seconds), 'orange'
+        return "{}s late".format(seconds), '#7CFC00'
     elif delay <= 5:
         return "{}m {}s late".format(floor(delay), seconds), 'orange'
     else:
@@ -58,4 +62,6 @@ def get_date_string(date):
 
 if __name__ == '__main__':
     predictions.load_network()
-    app.run(debug=True)
+    app.run()
+else:
+    predictions.load_network()

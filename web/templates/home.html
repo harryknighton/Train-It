@@ -20,9 +20,19 @@
                 <div id="input-form">
                     <form action="{{ url_for('handle_form') }}" method="get">
                         <span class="label">Station Codes</span><br>
-                        <input type="text" name="source" placeholder="From" maxlength="3" size="5">
-                        <input type="text" name="destination" placeholder="To" maxlength="3" size="5"><br><br>
-                        <span class="label">Journey Date</span> (DD/MM/YYYY)<br>
+                        <select name="source" required>
+                            <option selected disabled>From</option>
+                            {% for code, name in stationCodes.items() %}
+                                <option value="{{ code }}">{{ name }}</option>
+                            {% endfor %}
+                        </select><br><br>
+                        <select name="destination" required>
+                            <option selected disabled>To</option>
+                            {% for code, name in stationCodes.items() %}
+                                <option value="{{ code }}">{{ name }}</option>
+                            {% endfor %}
+                        </select><br><br>
+                        <span class="label">Journey Date (DD/MM/YYYY)</span><br>
                         <input type="number" name="day" id="day" min="1" max="31" size="2">
                         <input type="number" name="month" id="month" min="1" max="12" size="2">
                         <input type="number" name="year" id="year" min="2020" max="2020" size="4"><br><br>

@@ -38,6 +38,28 @@ lineTimesToBrighton = {
     "SSE": [[7,27],[8,20],[9,5],[9,56],[10,43],[12,26],[13,12],[14,5],[15,53],[17,5],[18,35],[19,56]]
 }
 
+stationCodeToNames = {
+    "AGT": "Aldrington",
+    "BTN": "Brighton",
+    "BUG": "Burgess Hill",
+    "CBR": "Cooksbridge",
+    "FMR": "Falmer",
+    "FSG": "Fishersgate",
+    "HHE": "Haywards Heath",
+    "HOV": "Hove",
+    "HSK": "Hassocks",
+    "LWS": "Lewes",
+    "LRB": "London Road",
+    "MCB": "Moulsecoomb",
+    "PLD": "Portslade",
+    "PMP": "Plumpton",
+    "PRP": "Preston Park",
+    "SSE": "Shoreham-by-Sea",
+    "SWK": "Southwick",
+    "WVF": "Wivelsfield",
+}
+
+
 def seconds_since_epoch_for_query(myQuery):
     """Calculates and returns seconds since epoch for the beginning of the hour of departure of a rail service"""
     dateTime = "{} {}:00:00".format(myQuery.fromDate, myQuery.fromTime[:2])
