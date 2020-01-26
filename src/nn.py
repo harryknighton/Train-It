@@ -3,7 +3,7 @@ from time import time
 from statistics import mean
 
 import data_handling as data
-from util import paramFilePath
+import util
 
 def ReLU(x):
     return np.maximum(0.05*x, x)
@@ -81,8 +81,8 @@ class NeuralNetwork:
 
     def save_parameters(self):
         """Saves network parameters to csv files"""
-        open(paramFilePath, 'w').close() # Clear file contents
-        with open(paramFilePath, 'a') as outFile:
+        open(util.paramFilePath, 'w').close() # Clear file contents
+        with open(util.paramFilePath, 'a') as outFile:
             # Write weights and biases to file
             for i in range(1, self.numLayers):
                 np.savetxt(outFile, self.weights[i], delimiter=",", fmt='%.8f')
@@ -90,7 +90,7 @@ class NeuralNetwork:
 
     def load_parameters(self):
         """Loads parameters into network from save file"""
-        with open(paramFilePath, 'r') as inFile:
+        with open(util.paramFilePath, 'r') as inFile:
             for i in range(1, self.numLayers):
                 self.weights[i] = np.loadtxt(inFile, delimiter=",", max_rows=self.shape[i], ndmin=2)
                 self.biases[i] = np.loadtxt(inFile, delimiter=",", max_rows=self.shape[i], ndmin=2)

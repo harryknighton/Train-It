@@ -1,8 +1,10 @@
 import time
 import calendar
+import os
 
-dataSetFilePath = "../saves/dataset.txt"
-paramFilePath = "../saves/parameters.txt"
+mainFolderPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+dataSetFilePath = mainFolderPath + "/saves/dataset.txt"
+paramFilePath = mainFolderPath + "/saves/parameters.txt"
 
 columnNames = [
     "Line",
