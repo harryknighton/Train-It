@@ -49,7 +49,7 @@ def get_delay_str(delay):
     elif delay == 0:
         return "No delay", '#7CFC00'
     elif delay <= 1:
-        return "{}s late".format(seconds), '#7CFC00'
+        return "{}s late".format(seconds), 'orange'
     elif delay <= 5:
         return "{}m {}s late".format(floor(delay), seconds), 'orange'
     else:
