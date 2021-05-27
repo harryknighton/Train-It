@@ -5,8 +5,8 @@ import errors
 # Functions to access the HSP API
 
 # Access details
-_USER = "harry.knighton18@students.bhasvic.ac.uk"
-_PW = "HarryKnighton01234!"
+_USER = ""
+_PW = ""
 
 
 def get_metrics(myQuery):
